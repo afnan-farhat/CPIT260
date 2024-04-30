@@ -18,15 +18,15 @@ public class CPIT2600 {
         blocks.add(os);
 
         // Add random-sized processes to fill up the remaining memory
-        int startAddress = osSize;
+        int startAddress = osSize; //اول بروسز بعد الاوبريتنق تبدا من اندكس 3 
         Random randomNum = new Random();
-        while (startAddress < memorySize) {
+        while (startAddress < memorySize) { // لوب عشان نملي الميموري 
             String processName = "P" + (blocks.size() - 1); // P1, P2, P3, ...
-            int maxSize = memorySize - startAddress;
-            int size = randomNum.nextInt(maxSize) + 1; // Generate random size between 1 and maxSize
+            int maxSize = memorySize - startAddress; //10-3=7 مساحةالميموري بعد كل بروسز تنضاف
+            int size = randomNum.nextInt(maxSize) + 1; // راندوم نمبرز بين واحد والحجم الجديد للميموري
             MemoryBlock process = new MemoryBlock(processName, startAddress, size, false);
             blocks.add(process);
-            startAddress += size;
+            startAddress += size;// ex: 3+4=7 
         }
         /* while (true) {
             // Display all processes in memory
@@ -82,15 +82,14 @@ Scanner scanner=new Scanner(System.in);
             
         }
          */
-        while (true) {
-             Scanner scanner = new Scanner(System.in);
+        while (true) {// لوب مانخرج منها لين اليوزر يسوي (exit)
+            Scanner scanner = new Scanner(System.in);
             // Display all processes in memory
             System.out.println("Processes in memory:");
-            for (MemoryBlock block : blocks) {
+            for (MemoryBlock block : blocks) { // loop عشان نطبع كل البروسز الي بالميموري
                 System.out.println(block);
             }
 
-            
             // Ask user to choose allocate or deallocate process
             System.out.print("Choose action (1 - Allocate, 2 - Deallocate, 0 - Exit): ");
             int choice = scanner.nextInt();
@@ -101,18 +100,33 @@ Scanner scanner=new Scanner(System.in);
             }
 
             if (choice == 1) {
+
                 System.out.print("Enter process name: ");
                 String processName = scanner.nextLine();
 
-                // Generate a random size for the process
+                // Ask user to choose algorithm
+                System.out.print("Choose allocation algorithm ( (1) for First Fit, (2) for Best Fit): ");
+                int algorithmChoice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+
                 Random random = new Random();
-                int maxSize = 10 - getTotalOccupiedSize(blocks); // Remaining available memory
-                int processSize = random.nextInt(maxSize) + 1; // Random size between 1 and maxSize
+                int maxSize = 10 - getTotalOccupiedSize(blocks); // التوتل ناقص مجموع السايزات للبروسز
+                int processSize = random.nextInt(maxSize) + 1; // Random size between 1 and maxSize 
 
                 System.out.println("Process size: " + processSize);
 
-                // Allocate using First Fit algorithm
-                allocateFirstFit(blocks, processName, processSize);
+                if (algorithmChoice == 1) {
+                    // Allocate using First Fit algorithm
+                    allocateFirstFit(blocks, processName, processSize);
+
+                } else if (algorithmChoice == 2) {
+                    // Allocate using Best Fit algorithm
+
+                    // allocateBestFit
+                } else {
+                    System.out.println("Invalid choice. Please choose a valid algorithm.");
+                }
+
             } else if (choice == 2) {
                 // Deallocate a process
                 System.out.print("Enter the process name to deallocate: ");
@@ -132,58 +146,56 @@ Scanner scanner=new Scanner(System.in);
         }
     }
 
-  public static MemoryBlock deallocateProcess(ArrayList<MemoryBlock> blocks, String processName) {
-    for (MemoryBlock block : blocks) {
-        if (block != null && block.processName.equals(processName)) {
-            MemoryBlock deallocatedBlock = block;
-            deallocatedBlock.processName = "HOLE";
-            deallocatedBlock.occupied = false;
+//ميثود الحذف
+    public static MemoryBlock deallocateProcess(ArrayList<MemoryBlock> blocks, String processName) {
+        for (MemoryBlock block : blocks) {
+            if (block != null && block.processName.equals(processName)) {//يشيك على اسم البروسز وانها ماتساوي نل
+                MemoryBlock deallocatedBlock = block; //سوينا اوبجكت عشان نتعامل مع بيانات البروسز 
+                deallocatedBlock.processName = "HOLE";
+                deallocatedBlock.setFree(true);
 
-            // Merge adjacent "HOLE" blocks
-            mergeAdjacentHoles(blocks);
-
-            return deallocatedBlock;
-        }
-    }
-    return null; // Process not found
-}
-
-public static MemoryBlock allocateFirstFit(ArrayList<MemoryBlock> blocks, String processName, int processSize) {
-    int totalOccupiedSize = getTotalOccupiedSize(blocks);
-
-    for (MemoryBlock block : blocks) {
-        if (block.processName.equals("HOLE") && block.size >= processSize) {
-            int newTotalOccupiedSize = totalOccupiedSize - block.size + processSize;
-
-            if (newTotalOccupiedSize <= 10) {
-                if (block.size == processSize) {
-                    block.processName = processName;
-                    block.occupied = true;
-                } else {
-                    block.processName = processName;
-                    block.occupied = true;
-
-                    MemoryBlock newHole = new MemoryBlock("HOLE", block.startAddress + processSize, block.size - processSize, false);
-                    blocks.add(blocks.indexOf(block) + 1, newHole);
-
-                    block.size = processSize;
-                }
-
+                // Merge adjacent "HOLE" blocks
                 mergeAdjacentHoles(blocks);
 
-                return block;
+                return deallocatedBlock;
             }
+
         }
+
+        return null; // Process not found
     }
 
-    System.out.println("Can't add the process because no place");
-    return null;
-}
+    public static MemoryBlock allocateFirstFit(ArrayList<MemoryBlock> blocks, String processName, int processSize) {
+        int totalOccupiedSize = getTotalOccupiedSize(blocks);
+
+        for (MemoryBlock block : blocks) {
+            if (block.processName.equals("HOLE") && block.size >= processSize && block.isFree == true) {
+                int newTotalOccupiedSize = totalOccupiedSize - block.size + processSize;
+
+                if (newTotalOccupiedSize < 10) {
+                    if (block.size >= processSize) {
+                        block.processName = processName;
+                        block.setFree(false);
+                    } else {
+                        continue;
+                    }
+
+                    mergeAdjacentHoles(blocks);
+
+                    return block;
+                }
+            }
+        }
+
+        System.out.println("Can't add the process because no place");
+        return null;
+    }
+
     private static int getTotalOccupiedSize(ArrayList<MemoryBlock> blocks) {
         int totalOccupiedSize = 0;
         for (MemoryBlock block : blocks) {
-            if (block != null && block.occupied) {
-                totalOccupiedSize += block.size;
+            if (block != null && !(block.isFree())) {// نشيك اذا مكان البروسز فري ولالا 
+                totalOccupiedSize += block.size; // اذا فري نجمع السايز 
             }
         }
         return totalOccupiedSize;
@@ -204,5 +216,3 @@ public static MemoryBlock allocateFirstFit(ArrayList<MemoryBlock> blocks, String
         }
     }
 }
-
-

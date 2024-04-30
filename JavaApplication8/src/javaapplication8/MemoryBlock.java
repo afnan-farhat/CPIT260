@@ -1,14 +1,17 @@
 package javaapplication8;
 
-
 class MemoryBlock {
 
     String processName;
     int startAddress;
     int size;
-    private boolean isFree;
- boolean occupied;
- 
+    boolean isFree;
+    boolean occupied;
+    int remainingSize;
+    int i;
+    boolean b;
+    String string;
+
     public MemoryBlock(String processName, int startAddress, int size, boolean isFree) {
         this.processName = processName;
         this.startAddress = startAddress;
@@ -17,21 +20,27 @@ class MemoryBlock {
     }
 
     MemoryBlock(int remainingSize, int i, boolean b, String string) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.remainingSize = remainingSize;
+        this.i = i;
+        this.b = b;
+        this.string = string;
     }
 
-    @Override
-    public String toString() {
+
+@Override
+        public String toString() {
         return "Process Name: " + processName + " | Start Address: " + startAddress + " | Size: " + size + " | Free: " + isFree;
     }
-public boolean isOccupied() {
-        return occupied;
+
+    public boolean isFree() {
+        return isFree;
     }
-  
+
     public int getSize() {
         return size;
     }
-public void setProcessName(String processName) {
+
+    public void setProcessName(String processName) {
         this.processName = processName;
     }
 
@@ -39,11 +48,17 @@ public void setProcessName(String processName) {
         this.occupied = occupied;
     }
 
-    int getAddress() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+ 
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+    
+    public void setFree(Boolean isFree){
+        this.isFree=isFree;
     }
 
-   public void setSize(int size) {
-    this.size = size;
-}
+    int getStartAddress() {
+       return startAddress;
+    }
 }
