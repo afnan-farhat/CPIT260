@@ -1,6 +1,8 @@
 package javaapplication8;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -16,17 +18,18 @@ public class CPIT2600 {
         // Add Operating System to the blocks list
         MemoryBlock os = new MemoryBlock("OS", 0, osSize, false);
         blocks.add(os);
-
+        int processNum = 0;
         // Add random-sized processes to fill up the remaining memory
         int startAddress = osSize; //اول بروسز بعد الاوبريتنق تبدا من اندكس 3 
         Random randomNum = new Random();
         while (startAddress < memorySize) { // لوب عشان نملي الميموري 
-            String processName = "P" + (blocks.size() - 1); // P1, P2, P3, ...
-            int maxSize = memorySize - startAddress; //10-3=7 مساحةالميموري بعد كل بروسز تنضاف
-            int size = randomNum.nextInt(maxSize) + 1; // راندوم نمبرز بين واحد والحجم الجديد للميموري
+            String processName = "P" + (processNum); // P1, P2, P3, ...
+            int CurrentSize = memorySize - startAddress; //10-3=7 مساحةالميموري بعد كل بروسز تنضاف
+            int size = randomNum.nextInt(CurrentSize) + 1; // راندوم نمبرز بين واحد والحجم الجديد للميموري
             MemoryBlock process = new MemoryBlock(processName, startAddress, size, false);
             blocks.add(process);
             startAddress += size;// ex: 3+4=7 
+            processNum++;
         }
         /* while (true) {
             // Display all processes in memory
@@ -121,8 +124,8 @@ Scanner scanner=new Scanner(System.in);
 
                 } else if (algorithmChoice == 2) {
                     // Allocate using Best Fit algorithm
+                    allocateBestFit(blocks, processName, processSize);
 
-                    // allocateBestFit
                 } else {
                     System.out.println("Invalid choice. Please choose a valid algorithm.");
                 }
@@ -170,17 +173,34 @@ Scanner scanner=new Scanner(System.in);
 
         for (MemoryBlock block : blocks) {
             if (block.processName.equals("HOLE") && block.size >= processSize && block.isFree == true) {
-                int newTotalOccupiedSize = totalOccupiedSize - block.size + processSize;
+                int newTotalOccupiedSize = totalOccupiedSize + processSize;//############### 
 
                 if (newTotalOccupiedSize < 10) {
-                    if (block.size >= processSize) {
+                    int NewSize = X(blocks, processSize);
+
+                    if (NewSize == block.size) {
                         block.processName = processName;
                         block.setFree(false);
-                    } else {
-                        continue;
-                    }
+                        block.setSize(NewSize);
 
-                    mergeAdjacentHoles(blocks);
+                    } else if (NewSize == -1) {
+                        break;
+                    } else {
+                        String oldProcess = block.processName; //oldHole
+                        int oldSAdress = block.startAddress;
+                        int oldSize = block.size;
+                        Boolean oldState = block.isFree;
+
+                        blocks.remove(block);
+                        MemoryBlock newProcess = new MemoryBlock(processName, oldSAdress, NewSize, false);
+                        MemoryBlock newHole = new MemoryBlock("HOLE", NewSize + oldSAdress, oldSize - NewSize, true); //startAddress += size
+
+                        blocks.add(newProcess);
+                        blocks.add(newHole);
+
+                        Collections.sort(blocks, Comparator.comparingInt(MemoryBlock::getStartAddress));
+
+                    }
 
                     return block;
                 }
@@ -194,7 +214,7 @@ Scanner scanner=new Scanner(System.in);
     private static int getTotalOccupiedSize(ArrayList<MemoryBlock> blocks) {
         int totalOccupiedSize = 0;
         for (MemoryBlock block : blocks) {
-            if (block != null && !(block.isFree())) {// نشيك اذا مكان البروسز فري ولالا 
+            if (!(block.isFree())) {// نشيك اذا مكان البروسز فري ولالا 
                 totalOccupiedSize += block.size; // اذا فري نجمع السايز 
             }
         }
@@ -214,5 +234,72 @@ Scanner scanner=new Scanner(System.in);
                 i--; // Decrement i to avoid skipping the next block after removal
             }
         }
+
     }
+
+    private static int X(ArrayList<MemoryBlock> blocks, int processSize) {
+        int newHole = 0;
+        for (MemoryBlock block : blocks) {
+
+            if (block.isFree()) {
+                if (processSize <= block.size) {
+                    break;
+
+                } else {
+                    return -1;
+
+                }
+            }
+
+        }
+        return processSize;
+    }
+
+    //---------------------------------------- bestFit
+    public static MemoryBlock allocateBestFit(ArrayList<MemoryBlock> blocks, String processName, int processSize) {
+
+        Collections.sort(blocks, Comparator.comparingInt(MemoryBlock::getSize));
+        int totalOccupiedSize = getTotalOccupiedSize(blocks);
+
+        for (MemoryBlock block : blocks) {
+            if (block.processName.equals("HOLE") && block.size >= processSize && block.isFree == true) {
+                int newTotalOccupiedSize = totalOccupiedSize + processSize;
+
+                if (newTotalOccupiedSize < 10) {
+                    int NewSize = X(blocks, processSize);
+
+                    if (NewSize == block.size) {
+                        block.processName = processName;
+                        block.setFree(false);
+                        block.setSize(NewSize);
+
+                    } else if (NewSize == -1) {
+                        break;
+                    } else {
+                        String oldProcess = block.processName; //oldHole
+                        int oldSAdress = block.startAddress;
+                        int oldSize = block.size;
+                        Boolean oldState = block.isFree;
+
+                        blocks.remove(block);
+                        MemoryBlock newProcess = new MemoryBlock(processName, oldSAdress, NewSize, false);
+                        MemoryBlock newHole = new MemoryBlock("HOLE", NewSize + oldSAdress, oldSize - NewSize, true); //startAddress += size
+
+                        blocks.add(newProcess);
+                        blocks.add(newHole);
+
+                    }
+
+                }
+
+            }
+            Collections.sort(blocks, Comparator.comparingInt(MemoryBlock::getStartAddress));
+            return block;
+        }
+        Collections.sort(blocks, Comparator.comparingInt(MemoryBlock::getStartAddress));
+        System.out.println("Can't add the process because no place");
+        return null;
+
+    }
+
 }

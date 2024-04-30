@@ -5,7 +5,7 @@ class MemoryBlock {
     String processName;
     int startAddress;
     int size;
-    boolean isFree;
+    boolean isFree=true;
     boolean occupied;
     int remainingSize;
     int i;
