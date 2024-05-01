@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
 public class CPIT2600 {
 
@@ -86,6 +87,7 @@ Scanner scanner=new Scanner(System.in);
         }
          */
         while (true) {// لوب مانخرج منها لين اليوزر يسوي (exit)
+
             Scanner scanner = new Scanner(System.in);
             // Display all processes in memory
             System.out.println("Processes in memory:");
@@ -113,8 +115,8 @@ Scanner scanner=new Scanner(System.in);
                 scanner.nextLine(); // Consume newline
 
                 Random random = new Random();
-                int maxSize = 10 - getTotalOccupiedSize(blocks); // التوتل ناقص مجموع السايزات للبروسز
-                int processSize = random.nextInt(maxSize) + 1; // Random size between 1 and maxSize 
+
+                int processSize = random.nextInt(7) + 1; // Random size between 1 and maxSize 
 
                 System.out.println("Process size: " + processSize);
 
@@ -175,7 +177,7 @@ Scanner scanner=new Scanner(System.in);
             if (block.processName.equals("HOLE") && block.size >= processSize && block.isFree == true) {
                 int newTotalOccupiedSize = totalOccupiedSize + processSize;//############### 
 
-                if (newTotalOccupiedSize < 10) {
+                if (newTotalOccupiedSize <= 10) {
                     int NewSize = X(blocks, processSize);
 
                     if (NewSize == block.size) {
@@ -215,7 +217,7 @@ Scanner scanner=new Scanner(System.in);
         int totalOccupiedSize = 0;
         for (MemoryBlock block : blocks) {
             if (!(block.isFree())) {// نشيك اذا مكان البروسز فري ولالا 
-                totalOccupiedSize += block.size; // اذا فري نجمع السايز 
+                totalOccupiedSize += block.size; // اذامو فري نجمع السايز 
             }
         }
         return totalOccupiedSize;
@@ -265,7 +267,7 @@ Scanner scanner=new Scanner(System.in);
             if (block.processName.equals("HOLE") && block.size >= processSize && block.isFree == true) {
                 int newTotalOccupiedSize = totalOccupiedSize + processSize;
 
-                if (newTotalOccupiedSize < 10) {
+                if (newTotalOccupiedSize <= 10) {
                     int NewSize = X(blocks, processSize);
 
                     if (NewSize == block.size) {
@@ -289,12 +291,12 @@ Scanner scanner=new Scanner(System.in);
                         blocks.add(newHole);
 
                     }
-
+                    Collections.sort(blocks, Comparator.comparingInt(MemoryBlock::getStartAddress));
+                    return block;
                 }
 
             }
-            Collections.sort(blocks, Comparator.comparingInt(MemoryBlock::getStartAddress));
-            return block;
+
         }
         Collections.sort(blocks, Comparator.comparingInt(MemoryBlock::getStartAddress));
         System.out.println("Can't add the process because no place");
