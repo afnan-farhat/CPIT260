@@ -1,62 +1,61 @@
 package cpit260;
-//
-//
-//public class MemoryBlock {
-//
-//    private MemoryBlock processName; // Null if block is free
-//    private int startAddress;
-//    private int size;
-//    private boolean isFree;
-//
-//    public MemoryBlock(int startAddress, int size, boolean isFree) {
-//        this.startAddress = startAddress;
-//        this.size = size;
-//        this.isFree = isFree;
-//    }
-//
-//    // Getters and setters
-//}
 
-public class MemoryBlock {
+class MemoryBlock {
 
-    private String processName;
-    private int startAddress;
+    private String ProcessName;
+    private int getBase;
     private int size;
-    private boolean isFree;
+    private boolean isFree = true;
 
-    public MemoryBlock(String processName, int startAddress, int size, boolean isFree) {
-        this.startAddress = startAddress;
+    public MemoryBlock(String processName, int getBase, int size, boolean isFree) {
+        this.ProcessName = processName;
+        this.getBase = getBase;
         this.size = size;
         this.isFree = isFree;
-        this.processName = processName;
     }
 
     public String getProcessName() {
-        return processName;
+        return ProcessName;
     }
 
-    public void setProcessName(String processName) {
-        this.processName = processName;
+    public void setProcessName(String ProcessName) {
+        this.ProcessName = ProcessName;
     }
 
-    public int getStartAddress() {
-        return startAddress;
+    public int getBase() {
+        return getBase;
+    }
+
+    public void setGetBase(int getBase) {
+        this.getBase = getBase;
     }
 
     public int getSize() {
         return size;
     }
 
-    public boolean isFree() {
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public boolean getIsFree() {
         return isFree;
     }
 
-    public void setFree(boolean free) {
-        isFree = free;
+    public void setIsFree(boolean isFree) {
+        this.isFree = isFree;
     }
 
+    @Override
     public String toString() {
-        //return (isFree ? "Free " : "Used by " + processName) + " Block at " + startAddress + " of size " + size;
-        return "process name: " + processName + " \tstartAddress: " + startAddress + " \tsize: " + size + "\n";
+        if(isFree==false){
+            
+            String state="allocated";
+            return "Process Name: " + ProcessName + " | Base: " + getBase + " | Size: " + size + " | State: " + state;
+        }
+        
+        String state="deallocated";
+        return "Process Name: " + ProcessName + " | Base: " + getBase + " | Size: " + size + " | State: " + state;
     }
 }
+  
